@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Think Twice | Smart Finance</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #3b82f6;
+            --success: #22c55e;
+            --danger: #f43f5e;
+            --text: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 { 
+            color: var(--success); 
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+            margin-top: 30px;
+        }
+
+        .card { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+            width: 100%;
+            max-width: 450px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            color: #94a3b8;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #94a3b8; }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #334155; 
+            background: #0f172a; 
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button { 
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: bold;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover { background-color: #2563eb; transform: translateY(-2px); }
+
+        .resultado { 
+            display: none; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-top: 20px; 
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .verde { border: 2px solid var(--success); background: rgba(34, 197, 94, 0.1); color: #4ade80; }
+        .rojo { border: 2px solid var(--danger); background: rgba(244, 63, 94, 0.1); color: #fb7185; }
+        
+        #txtDisponible { color: var(--success); font-size: 1.2rem; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <h1>THINK TWICE 💸</h1>
+
+    <div class="card">
+        <h2>1. Tu Presupuesto Mensual</h2>
+        <label>Ingreso Mensual (Sueldo)</label>
+        <input type="number" id="sueldo" placeholder="$ 0.00">
+        
+        <label>Gastos Fijos (Servicios/Arriendo)</label>
+        <input type="number" id="servicios" placeholder="$ 0.00">
+        
+        <label>Meta de Ahorro</label>
+        <input type="number" id="ahorro_meta" placeholder="$ 0.00">
+        
+        <button onclick="calcularDisponible()">Calcular Saldo Libre</button>
+        <div id="txtDisponible" style="margin-top: 15px; font-weight: bold;"></div>
+    </div>
+
+    <div class="card" id="seccionCompra" style="display:none;">
+        <h2>2. Analizar un antojo</h2>
+        <label>¿Qué deseas comprar?</label>
+        <input type="text" id="objeto" placeholder="Ej: Zapatos, Maleta, Consola">
+        
+        <label>Precio del producto</label>
+        <input type="number" id="precio" placeholder="$ 0.00">
+        
+        <button onclick="analizarGasto()" style="background-color: var(--success);">Analizar mi Decisión</button>
+        
+        <div id="resFinal" class="resultado"></div>
+    </div>
+
+    <script>
+        let dineroLibreGlobal = 0;
+
+        function calcularDisponible() {
+            const sueldo = parseFloat(document.getElementById('sueldo').value) || 0;
+            const servicios = parseFloat(document.getElementById('servicios').value) || 0;
+            const ahorro = parseFloat(document.getElementById('ahorro_meta').value) || 0;
+
+            dineroLibreGlobal = sueldo - servicios - ahorro;
+
+            const display = document.getElementById('txtDisponible');
+            if (dineroLibreGlobal < 0) {
+                display.style.color = "var(--danger)";
+                display.innerHTML = "⚠️ ¡Cuidado! Tus gastos y ahorro superan tu sueldo.";
+                document.getElementById('seccionCompra').style.display = "none";
+            } else {
+                display.style.color = "var(--success)";
+                display.innerHTML = "Disponible para gastos extra: $" + dineroLibreGlobal.toLocaleString();
+                document.getElementById('seccionCompra').style.display = "block";
+            }
+        }
+
+        function analizarGasto() {
+            const objeto = document.getElementById('objeto').value || "este producto";
+            const precio = parseFloat(document.getElementById('precio').value) || 0;
+            const res = document.getElementById('resFinal');
+            res.style.display = "block";
+
+            if (precio <= dineroLibreGlobal) {
+                res.className = "resultado verde";
+                res.innerHTML = ✅ <strong>¡Adelante!</strong> Tienes dinero libre suficiente. Comprar la/el ${objeto} no afectará tus ahorros ni el pago de tus servicios fijos.;
+            } else {
+                res.className = "resultado rojo";
+                res.innerHTML = ❌ <strong>¡Detente!</strong> La/el ${objeto} sobrepasa tu dinero disponible. Si la compras, estarás sacrificando tu dinero de servicios o tu meta de ahorro.;
+            }
+        }
+    </script>
+</body>
+</html>
